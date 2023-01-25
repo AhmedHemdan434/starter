@@ -5,8 +5,10 @@ import android.graphics.Picture
 import androidx.lifecycle.*
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.PictureOfDay
+import com.udacity.asteroidradar.api.getNextSevenDaysFormattedDates
 import com.udacity.asteroidradar.database.getAsteroidsDatabase
 import com.udacity.asteroidradar.repository.AsteroidsRepository
+import com.udacity.asteroidradar.repository.FILTER_PARAM
 import kotlinx.coroutines.launch
 
 enum class NasaApiStatus { LOADING, ERROR, DONE }
@@ -31,8 +33,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val asteroidsRepository = AsteroidsRepository(database)
 
     private val _asteroids = asteroidsRepository.asteroids
-    val asteroids: LiveData<List<Asteroid>>
-        get() = _asteroids
+    var asteroids: MutableLiveData<List<Asteroid>> = MutableLiveData()
 
 
     private val _pictureOfDayList = asteroidsRepository.pictureOfDay
@@ -40,7 +41,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         get() = _pictureOfDayList
 
     init {
-        if(asteroids.value == null || asteroids.value!!.isEmpty()){
+        _asteroids.observeForever {
+            filterData()
+        }
+        if(_asteroids.value == null || _asteroids.value!!.isEmpty()){
             refreshAsteroids()
         }
         if(pictureOfDayList.value == null || pictureOfDayList.value!!.isEmpty()){
@@ -81,5 +85,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         return null
     }
 
+    fun filterData(filterParam: FILTER_PARAM = FILTER_PARAM.ALL_DATA){
+        asteroids.postValue(_asteroids.value?.filter { asteroid ->
+            when(filterParam){
+                FILTER_PARAM.ALL_DATA -> true
+                FILTER_PARAM.TODAY -> isDateWithin(asteroid.closeApproachDate, true)
+                FILTER_PARAM.WEEK -> isDateWithin(asteroid.closeApproachDate, false)
+            }
+        })
+    }
 
+
+    private fun isDateWithin(date: String, isToday: Boolean): Boolean {
+        val formattedDayList = getNextSevenDaysFormattedDates()
+        return if(isToday){
+            formattedDayList[0] == date
+        } else {
+            formattedDayList.subList(1, formattedDayList.size).contains(date)
+        }
+    }
 }

@@ -1,13 +1,16 @@
 package com.udacity.asteroidradar.repository
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.map
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.udacity.asteroidradar.Asteroid
+import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.PictureOfDay
+import com.udacity.asteroidradar.api.getNextSevenDaysFormattedDates
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.database.AsteroidsDatabase
 import com.udacity.asteroidradar.database.asDomainModel
@@ -19,6 +22,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.*
+
+enum class FILTER_PARAM {ALL_DATA, WEEK, TODAY}
 
 class AsteroidsRepository(private val database: AsteroidsDatabase) {
 
@@ -36,7 +43,6 @@ class AsteroidsRepository(private val database: AsteroidsDatabase) {
         it.asDomainModel()
     }
 
-
     suspend fun refreshAsteroids() {
         withContext(Dispatchers.IO) {
             val asteroidsString =  Network.asteroids.getAsteroids().await()
@@ -50,6 +56,13 @@ class AsteroidsRepository(private val database: AsteroidsDatabase) {
             val pictureOfDayString = Network.asteroids.getPhotoOfDay().await()
             val pictureOfDay = pictureAdapter.fromJson(pictureOfDayString)
             database.pictureOfDayDao.insert(pictureOfDay!!.asDatabaseModel())
+        }
+    }
+
+    suspend fun deleteAllData(){
+        withContext(Dispatchers.IO){
+            database.asteroidDao.deleteAll()
+            database.pictureOfDayDao.getPictureOfDay()
         }
     }
 }

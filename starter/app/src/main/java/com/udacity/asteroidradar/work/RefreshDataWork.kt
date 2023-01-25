@@ -1,4 +1,4 @@
-/*
+package com.udacity.asteroidradar.work/*
  * Copyright 2018, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +15,6 @@
  *
  */
 
-package com.example.android.devbyteviewer.work
-
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -28,7 +26,7 @@ class RefreshDataWorker(appContext: Context, params: WorkerParameters):
         CoroutineWorker(appContext, params) {
 
     companion object {
-        const val WORK_NAME = "RefreshDataWorker"
+        const val WORK_NAME = "com.udacity.asteroidradar.work.RefreshDataWorker"
     }
 
     /**
@@ -41,6 +39,7 @@ class RefreshDataWorker(appContext: Context, params: WorkerParameters):
         val database = getAsteroidsDatabase(applicationContext)
         val repository = AsteroidsRepository(database)
         return try {
+            repository.deleteAllData()
             repository.refreshAsteroids()
             repository.refreshPictureOfDay()
             Result.success()

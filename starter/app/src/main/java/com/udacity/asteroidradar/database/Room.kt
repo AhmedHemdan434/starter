@@ -6,11 +6,14 @@ import androidx.room.*
 
 @Dao
 interface AsteroidDao {
-    @Query("select * from databaseasteroid order by closeApproachDate desc")
+    @Query("select * from databaseasteroid order by closeApproachDate asc")
     fun getAsteroids(): LiveData<List<DatabaseAsteroid>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(vararg asteroids: DatabaseAsteroid)
+
+    @Query("delete from databaseasteroid")
+    fun deleteAll()
 }
 
 @Dao
@@ -20,6 +23,9 @@ interface PictureOfDayDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(pictureOfDay: DatabasePictureOfDay)
+
+    @Query("delete from databasepictureofday")
+    fun deleteAll()
 }
 
 @Database(entities = [DatabaseAsteroid::class, DatabasePictureOfDay::class], version = 1)

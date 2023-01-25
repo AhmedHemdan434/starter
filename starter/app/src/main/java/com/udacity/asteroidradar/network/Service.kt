@@ -12,7 +12,7 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface AsteroidService {
-    @GET("neo/rest/v1/neo/browse")
+    @GET("neo/rest/v1/feed")
     fun getAsteroids(@Query("api_key") apiKey: String = BuildConfig.NASA_API_KEY): Deferred<String>
 
     @GET("planetary/apod")

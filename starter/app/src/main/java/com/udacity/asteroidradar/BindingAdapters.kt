@@ -12,8 +12,10 @@ import com.udacity.asteroidradar.main.NasaApiStatus
 fun bindAsteroidStatusImage(imageView: ImageView, isHazardous: Boolean) {
     if (isHazardous) {
         imageView.setImageResource(R.drawable.ic_status_potentially_hazardous)
+        imageView.contentDescription = "Hazardous Asteroid"
     } else {
         imageView.setImageResource(R.drawable.ic_status_normal)
+        imageView.contentDescription = "Not Hazardous Asteroid"
     }
 }
 
